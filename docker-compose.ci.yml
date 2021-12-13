@@ -1,0 +1,134 @@
+version: '3.3'
+
+services:
+
+  backend:
+    build:
+      context: .
+      dockerfile: 'docker/Dockerfile'
+    container_name: backend-qeep
+    image: 'registry.gitlab.com/qeep2021/qeep/django'
+    depends_on:
+      - db
+    env_file:
+      - prod.env
+    volumes:
+      - type: bind
+        source: ./qeep_media
+        target: /code/media
+    ports:
+      - "8000:8000"
+    networks:
+      backend-qeep:
+#    labels:
+#      - "traefik.http.services.web.loadbalancer.server.port=8000"
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.django.rule=Host(`${HOSTNAME}`)"
+#      - "traefik.http.routers.django.tls=true"
+#      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+    restart: always
+    command:  uwsgi --ini "/etc/uwsgi/uwsgi.ini"
+
+  tgbot:
+    build:
+      context: .
+      dockerfile: 'docker/Dockerfile'
+    container_name: tgbot
+    image: 'registry.gitlab.com/qeep2021/qeep/bot'
+    working_dir: "/code"
+    depends_on:
+      - db
+    ports:
+      - "5000-5250:5000-5250"
+    volumes:
+      - type: bind
+        source: ./qeep_media
+        target: /code/media
+    env_file:
+      - prod.env
+    environment:
+      - SKIP_MIGRATION=True
+    networks:
+      backend-qeep:
+    command: python manage.py bot_webhook
+    restart: always
+
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    env_file:
+      - prod.env
+    volumes:
+      - ./qeep_postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      backend-qeep:
+    restart: always
+
+
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      backend-qeep:
+    volumes:
+      - ./storage/redis/data:/data
+    restart: always
+
+  celery_worker:
+    command: celery -A main worker -l info
+    container_name: celery_worker
+    depends_on:
+      - db
+      - redis
+    image: 'registry.gitlab.com/qeep2021/qeep/django'
+    env_file:
+      - prod.env
+    volumes:
+      - type: bind
+        source: ./qeep_media
+        target: /code/media
+    environment:
+      - SKIP_MIGRATION=True
+    networks:
+      backend-qeep:
+    restart: always
+
+
+
+  celery_beat:
+    command: celery -A main beat -l info
+    container_name: celery_beat
+    depends_on:
+      - db
+      - redis
+    image: 'registry.gitlab.com/qeep2021/qeep/django'
+    env_file:
+      - prod.env
+    volumes:
+      - type: bind
+        source: ./qeep_media
+        target: /code/media
+    environment:
+      - SKIP_MIGRATION=True
+    networks:
+      backend-qeep:
+    restart: always
+
+#  traefik:
+#    image: traefik:v2.2
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#      - "./traefik.prod.toml:/etc/traefik/traefik.toml"
+#    networks:
+#      backend-qeep:
+#    restart: always
+
+networks:
+  backend-qeep:

@@ -1,0 +1,37 @@
+FALLBACK_MESSAGE: "Не понимаю тебя. Для создания запроса в поддержку напиши /new_request"
+
+BOT_PROBLEM: "Технические проблемы с чат ботом"
+
+PRODUCT_PROBLEM: "У меня вопрос по продукту"
+
+COURSE_PROBLEM: "У меня вопрос по курсу или тренировке"
+
+PROBLEM_TYPE_CHOICE_MESSAGE: "Привет! Выбери тип вопроса из списка"
+
+BOT_PROBLEM_ACTIVATION: "Не удаётся активировать"
+
+BOT_PROBLEM_NOTIFICATION: "Не присылает уведомления"
+
+BOT_PROBLEM_DOUBLE_MESSAGES: "Задваиваются сообщения"
+
+BOT_PROBLEM_OTHER: "Другая проблема"
+
+ACTIVATION_CODE_FOUND_MESSAGE: "Ты нашёл регистрационный код и ввёл его верно?"
+
+DESCRIBE_PROBLEM_MESSAGE: "Опиши свою проблему подробнее (и приложи картинку, если есть)"
+
+NO_CODE_PROOF_MESSAGE: "Пришлите пожалуйста фотографию продукта, где видно, что код отсутствует.\
+                      Также пришлите электронный чек, подтверждающий вашу покупку."
+
+BOT_STOPPED_MESSAGE: "Когда бот перестал присылать сообщения?"
+
+BOT_DOUBLING_MESSAGE: "С какого дня начали задваиваться сообщения?"
+
+ADD_TICKET_ERROR_MESSAGE: "Произошла ошибка при добавлении. Попробуй еще раз позже"
+
+ADD_TICKET_SUCCESS_MESSAGE: "Заявка успешно добавлена, ожидайте ответа"
+
+UPDATE_TICKET_SUCCESS_MESSAGE: "Заявка дополнена."
+
+YES_MESSAGE: "Да"
+NO_MESSAGE: "Нет"

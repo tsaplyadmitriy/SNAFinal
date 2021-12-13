@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+
+  backend:
+    container_name: backend-qeep
+    build:
+      context: .
+      dockerfile: 'docker/Dockerfile'
+    env_file:
+      - prod.env
+    volumes:
+      - type: bind
+        source: ./qeep_media
+        target: /code/media
+    ports:
+      - "8000:8000"
+    networks:
+      backend-qeep:
+    labels:
+      - "traefik.http.services.web.loadbalancer.server.port=8000"
+      - "traefik.enable=true"
+      - "traefik.http.routers.django.rule=Host(`${HOSTNAME}`)"
+      - "traefik.http.routers.django.tls=true"
+      - "traefik.http.routers.django.tls.certresolver=letsencrypt"
+    restart: always
+    command:  uwsgi --ini "/etc/uwsgi/uwsgi.ini"
+
+  tgbot:
+    container_name: tgbot
+    build:
+      context: .
+      dockerfile: 'docker/Dockerfile'
+    working_dir: "/code"
+    env_file:
+      - prod.env
+    environment:
+      - SKIP_MIGRATION=True
+    ports:
+      - "5000:5000"
+    networks:
+      backend-qeep:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.bot.loadbalancer.server.port=5000"
+      - "traefik.http.routers.bot.rule=Host(`${HOSTNAME}`) && PathPrefix(`/bot/`)"
+    command: python manage.py bot
+    restart: always
+
+networks:
+  backend-qeep:
